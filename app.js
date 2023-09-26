@@ -1,11 +1,16 @@
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+var session = require('express-session');
+var db = require('./data/db');
+var SequelizeStore = require('connect-session-sequelize')(session.Store);
 
-var indexRouter = require('./routes/index');
+(async()=>{await db.InititializeDb();})();
+var indexRouter = require('./routes/index')(db);
 var usersRouter = require('./routes/users');
 
 var app = express();
@@ -19,6 +24,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret: process.env.SESSIONSECRET,
+  store: new SequelizeStore({
+    db: db.instance
+  }),
+  cookie:{
+    httpOnly: true,
+    maxAge: 1000*60*60*24,
+
+  },
+  resave: false,
+  saveUninitialized: true
+}));
+
 app.use(cors());
 
 app.use('/', indexRouter);

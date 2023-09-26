@@ -1,11 +1,11 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
-const sz = new Sequelize({
+const sequelize = new Sequelize({
     dialect: 'sqlite',
     storage: './database.sqlite'
 });
 
-const Person = sz.define('Person',{
+const Person = sequelize.define('Person',{
     firstName:{
         type: DataTypes.STRING,
         allowNull: false
@@ -16,8 +16,9 @@ const Person = sz.define('Person',{
     }
 });
 
-async function init(){
-    await sz.sync();
+async function InititializeDb(){
+    console.log('running init');
+    await sequelize.sync();
     let ppl = await Person.findAll();
     if(ppl.length < 1){
         await Person.create({firstName:'Mike',lastName:'Collins'});
@@ -25,10 +26,6 @@ async function init(){
         await Person.create({firstName:'Michael',lastName:'Collins'});            
     }
 }
-
-(async()=>{
-     await init();
-})();
 
 async function GetAllPeopleAsync(){
     return await Person.findAll();
@@ -38,4 +35,4 @@ async function GetPersonByIdAsync(id){
     return await Person.findOne({where:{id}});    
 }
 
-module.exports = {GetAllPeopleAsync, GetPersonByIdAsync}
+module.exports = {instance: sequelize , InititializeDb, GetAllPeopleAsync, GetPersonByIdAsync}
