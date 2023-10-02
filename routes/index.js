@@ -18,12 +18,9 @@ module.exports = (db)=>{
   router.get('/hello/:ID', async function(req, res, next) {
     var t = req.session.test? req.session.test : 0;
     var p = await db.GetPersonByIdAsync(req.params.ID);
-    if(p != null){
-      res.send(`Hello, ${p.firstName}! ${t}`);
-    }else{
-      res.send(`Hello, stranger. ${t}`);
-    }
-    
+    var name = p== null? 'stranger' : p.firstName;
+     
+    res.send(`Hello, ${name}! ${t}`);
   });
 
   return router;
